@@ -44,10 +44,6 @@ fi
 echo "📊 Initializing database..."
 mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASSWORD" < init_db.sql
 
-# Check required API keys
-if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-    echo "⚠️  Warning: GOOGLE_APPLICATION_CREDENTIALS not set"
-fi
 
 if [ -z "$USDA_API_KEY" ]; then
     echo "⚠️  Warning: USDA_API_KEY not set"

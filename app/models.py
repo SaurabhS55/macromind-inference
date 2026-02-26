@@ -11,7 +11,7 @@ class Food(Base):
     Global nutrition lookup table.
     Stores normalized food names with nutrition data per 100g.
     """
-    __tablename__ = "foods"
+    __tablename__ = "nutrition_lookup"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     

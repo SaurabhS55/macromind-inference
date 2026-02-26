@@ -4,10 +4,11 @@
 
 ## 🌟 Features
 
-- **Smart Food Detection**: Google Vision API with 80% confidence threshold
+- **Smart Food Detection**: HuggingFace food detection (`nateraw/food`) with 20% confidence threshold
 - **Accurate Nutrition Data**: USDA FoodData Central (government dataset)
 - **Global Cache Pattern**: Read-through cache for instant lookups
 - **Intelligent Normalization**: Maximizes cache hits, prevents duplicates
+- **Local AI Processing**: No external vision API keys or billing required
 - **Production Ready**: Async, error handling, connection pooling
 
 ## 🏗️ Architecture
@@ -15,7 +16,7 @@
 ```
 User uploads meal image
         ↓
-Google Vision API → detects food names
+HuggingFace (nateraw/food) → detects food names
         ↓
 Normalize food name
         ↓
@@ -36,19 +37,12 @@ Return
 
 - Python 3.8+
 - MySQL 5.7+ (running locally)
-- Google Cloud Vision API credentials
 - USDA FoodData Central API key
+- `transformers`, `torch`, and `Pillow` libraries (installed via requirements.txt)
 
 ## 🚀 Quick Start
 
-### 1. Get API Keys
-
-**Google Cloud Vision API:**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing
-3. Enable Vision API
-4. Create service account and download JSON key
-5. Save as `google-vision-key.json`
+### 1. Get API Key
 
 **USDA FoodData Central API:**
 1. Sign up at [USDA API Portal](https://fdc.nal.usda.gov/api-key-signup.html)
@@ -66,7 +60,6 @@ nano .env
 
 Update these values in `.env`:
 ```bash
-GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/google-vision-key.json
 USDA_API_KEY=your_usda_api_key_here
 DB_PASSWORD=your_mysql_password
 ```
@@ -130,7 +123,7 @@ Health check with service status.
 {
   "status": "healthy",
   "database": "connected",
-  "vision_api": "configured",
+  "food_model": "nateraw/food (HuggingFace)",
   "usda_api": "configured"
 }
 ```
@@ -164,7 +157,7 @@ macromind-ai/
 │   ├── models.py            # SQLAlchemy models
 │   ├── schemas.py           # Pydantic schemas
 │   ├── services/
-│   │   ├── vision_service.py    # Google Vision API
+│   │   ├── vision_service.py    # HuggingFace Food Model
 │   │   ├── nutrition_service.py # USDA API
 │   │   └── meal_service.py      # Core cache logic
 │   └── utils/
@@ -218,7 +211,7 @@ This maximizes cache hits and prevents duplicate entries.
 Nutrition data is stored per 100g (not per serving) because serving sizes vary wildly across foods and regions.
 
 ### 3. Confidence Threshold
-Vision API labels are filtered at 80% confidence to reduce garbage entries in the database.
+HuggingFace model labels are filtered at 20% confidence to balance recall and precision for food items.
 
 ### 4. Read-Through Cache
 The cache pattern automatically fetches and stores missing data, eliminating manual cache management.
@@ -234,13 +227,13 @@ sudo systemctl status mysql
 sudo systemctl start mysql
 ```
 
-**Vision API Error:**
+**Model Loading Issues:**
 ```bash
-# Verify credentials path
-echo $GOOGLE_APPLICATION_CREDENTIALS
+# Check if transformers is installed
+pip show transformers
 
-# Test credentials
-gcloud auth application-default print-access-token
+# The model downloads on first run (~300MB)
+# Ensure you have internet connection for the first startup
 ```
 
 **USDA API Error:**
@@ -256,7 +249,7 @@ curl "https://api.nal.usda.gov/fdc/v1/foods/search?query=apple&api_key=$USDA_API
 
 - **Cache Hit**: ~5ms (MySQL lookup)
 - **Cache Miss**: ~500ms (USDA API + MySQL insert)
-- **Vision API**: ~1-2s (food detection)
+- **Food Detection**: ~1-3s (Local AI processing)
 
 After initial population, most requests are cache hits (instant response).
 
@@ -281,7 +274,7 @@ Contributions welcome! Please open an issue or PR.
 
 ### 🚀 Built with passion by Saurabh
 
-*Powered by FastAPI • Google Vision API • USDA FoodData Central*
+*Powered by FastAPI • HuggingFace (nateraw/food) • USDA FoodData Central*
 
 ⭐ **Nutrition meets Intelligence** ⭐
 

@@ -1,10 +1,10 @@
 -- Create database
-CREATE DATABASE IF NOT EXISTS nutrition_lookup CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS macrodb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE nutrition_lookup;
+USE macrodb;
 
 -- Create foods table with global nutrition cache
-CREATE TABLE IF NOT EXISTS foods (
+CREATE TABLE IF NOT EXISTS nutrition_lookup (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     
     normalized_name VARCHAR(255) NOT NULL UNIQUE,

@@ -18,7 +18,7 @@ load_dotenv()
 # Initialize FastAPI app
 app = FastAPI(
     title="Nutrition Analysis API",
-    description="Global read-through nutrition cache with Google Vision API and USDA FoodData Central",
+    description="Global read-through nutrition cache with HuggingFace food detection and USDA FoodData Central",
     version="1.0.0"
 )
 
@@ -61,7 +61,7 @@ async def analyze_meal(
     
     Flow:
     1. Upload meal image
-    2. Google Vision API → detect food names
+     2. HuggingFace food model → detect food names
     3. For each food:
        - Normalize food name
        - Check Global Nutrition Lookup (MySQL)
@@ -92,7 +92,7 @@ async def analyze_meal(
                 detail="Empty file uploaded"
             )
         
-        # Step 1: Detect foods using Vision API
+        # Step 1: Detect foods using HuggingFace food model
         print(f"\n🔍 Analyzing image: {file.filename}")
         detected_labels = detect_food_sync(image_bytes)
         
@@ -104,7 +104,7 @@ async def analyze_meal(
                 message="No food items detected in image"
             )
         
-        print(f"👁️  Vision API detected: {detected_labels}")
+        print(f"👁️  Food model detected: {detected_labels}")
         
         # Step 2: Get nutrition data for each detected food
         nutrition_data = []
@@ -167,7 +167,7 @@ async def health_check():
     return {
         "status": "healthy",
         "database": "connected",
-        "vision_api": "configured" if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else "not configured",
+        "food_model": "nateraw/food (HuggingFace)",
         "usda_api": "configured" if os.getenv("USDA_API_KEY") else "not configured"
     }
 

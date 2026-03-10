@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.database import get_db, init_db
-from app.services.vision_service import detect_food_sync
+from app.services.vision_service import detect_food
 from app.services.meal_service import get_or_create_food
 from app.schemas import AnalyzeResponse, ErrorResponse, FoodItem
 from dotenv import load_dotenv
@@ -17,8 +17,8 @@ load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Nutrition Analysis API",
-    description="Global read-through nutrition cache with HuggingFace food detection and USDA FoodData Central",
+    title="Macromind AI",
+    description="Global read-through nutrition cache with food detection using Gemini 1.5 flash and USDA FoodData Central",
     version="1.0.0"
 )
 
@@ -46,7 +46,7 @@ async def root():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "Nutrition Analysis API",
+        "service": "Macromind AI",
         "version": "1.0.0"
     }
 
@@ -61,7 +61,7 @@ async def analyze_meal(
     
     Flow:
     1. Upload meal image
-     2. HuggingFace food model → detect food names
+    2. Gemini 1.5 flash → detect food names
     3. For each food:
        - Normalize food name
        - Check Global Nutrition Lookup (MySQL)
@@ -92,9 +92,9 @@ async def analyze_meal(
                 detail="Empty file uploaded"
             )
         
-        # Step 1: Detect foods using HuggingFace food model
+        # Step 1: Detect foods using Gemini 1.5 flash food model
         print(f"\n🔍 Analyzing image: {file.filename}")
-        detected_labels = detect_food_sync(image_bytes)
+        detected_labels = detect_food(image_bytes)
         
         if not detected_labels:
             return AnalyzeResponse(
@@ -111,11 +111,11 @@ async def analyze_meal(
         cache_hits = 0
         cache_misses = 0
         
-        for food_name in detected_labels:
+        for food_name in detected_labels["foods"]:
             # Check cache size before fetching
             initial_count = db.query(db.query(Food).count()).scalar() if 'Food' in dir() else 0
             
-            food = await get_or_create_food(food_name, db)
+            food = await get_or_create_food(food_name["name"], db)
             
             if food:
                 nutrition_data.append(FoodItem(
@@ -144,7 +144,7 @@ async def analyze_meal(
         
         return AnalyzeResponse(
             success=True,
-            detected_foods=detected_labels,
+            detected_foods=detected_labels["foods"],
             nutrition_data=nutrition_data,
             cache_hits=cache_hits,
             cache_misses=cache_misses,

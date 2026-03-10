@@ -1,22 +1,20 @@
 # 🍎 Nutrition Analysis API
 
-**Global Read-Through Nutrition Cache** - A production-ready nutrition analysis API using Google Vision API, USDA FoodData Central API, and MySQL caching.
-
 ## 🌟 Features
 
-- **Smart Food Detection**: HuggingFace food detection (`nateraw/food`) with 20% confidence threshold
+- **Smart Food Detection**: Gemini 2.5 Flash model for food and quantity detection
 - **Accurate Nutrition Data**: USDA FoodData Central (government dataset)
 - **Global Cache Pattern**: Read-through cache for instant lookups
 - **Intelligent Normalization**: Maximizes cache hits, prevents duplicates
-- **Local AI Processing**: No external vision API keys or billing required
-- **Production Ready**: Async, error handling, connection pooling
 
 ## 🏗️ Architecture
 
 ```
 User uploads meal image
         ↓
-HuggingFace (nateraw/food) → detects food names
+Gemini 2.5 Flash Vision
+        ↓
+Detect foods + quantity
         ↓
 Normalize food name
         ↓
@@ -89,11 +87,20 @@ curl -X POST \
   http://localhost:8000/analyze
 ```
 
-**Response:**
-```json
 {
   "success": true,
-  "detected_foods": ["Apple", "Banana", "Orange"],
+  "detected_foods": [{
+        "name": "Apple",
+        "quantity": "1 medium"
+  },
+  {
+        "name": "Banana",
+        "quantity": "1 medium"
+  },
+  {
+        "name": "Orange",
+        "quantity": "1 medium"
+  }],
   "nutrition_data": [
     {
       "id": 1,
@@ -210,10 +217,7 @@ This maximizes cache hits and prevents duplicate entries.
 ### 2. Per 100g Storage
 Nutrition data is stored per 100g (not per serving) because serving sizes vary wildly across foods and regions.
 
-### 3. Confidence Threshold
-HuggingFace model labels are filtered at 20% confidence to balance recall and precision for food items.
-
-### 4. Read-Through Cache
+### 3. Read-Through Cache
 The cache pattern automatically fetches and stores missing data, eliminating manual cache management.
 
 ## 🐛 Troubleshooting
@@ -248,7 +252,7 @@ curl "https://api.nal.usda.gov/fdc/v1/foods/search?query=apple&api_key=$USDA_API
 ## 📊 Performance
 
 - **Cache Hit**: ~5ms (MySQL lookup)
-- **Cache Miss**: ~500ms (USDA API + MySQL insert)
+- **Cache Miss**: ~1000ms (USDA API + MySQL insert)
 - **Food Detection**: ~1-3s (Local AI processing)
 
 After initial population, most requests are cache hits (instant response).
@@ -272,9 +276,7 @@ Contributions welcome! Please open an issue or PR.
 
 <div align="center">
 
-### 🚀 Built with passion by Saurabh
-
-*Powered by FastAPI • HuggingFace (nateraw/food) • USDA FoodData Central*
+### 🚀 Built with passion by Saurabh Salunke
 
 ⭐ **Nutrition meets Intelligence** ⭐
 

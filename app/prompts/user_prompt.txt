@@ -1,0 +1,20 @@
+Analyze the provided meal image.
+
+Steps:
+1. Detect all visible food items in the image.
+2. Estimate the quantity of each food item.
+
+If no food items are present in the image, return exactly:
+
+{}
+
+If food items are detected, return JSON exactly in this format:
+
+{
+  "foods": [
+    {
+      "name": "food name",
+      "quantity": "estimated quantity"
+    }
+  ]
+}

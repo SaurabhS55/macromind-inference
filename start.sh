@@ -49,6 +49,10 @@ if [ -z "$USDA_API_KEY" ]; then
     echo "⚠️  Warning: USDA_API_KEY not set"
 fi
 
+if [ -z "$GEMINI_API_KEY" ]; then
+    echo "⚠️  Warning: GEMINI_API_KEY not set"
+fi
+
 # Start the application
 echo "✅ Starting FastAPI server..."
 echo ""

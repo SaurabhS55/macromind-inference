@@ -13,6 +13,12 @@ class NutritionData(BaseModel):
     fats: float = Field(..., description="Fats (g)")
 
 
+class DetectedFood(BaseModel):
+    """Detected food item."""
+    name: str
+    quantity: str
+
+
 class FoodItem(BaseModel):
     """Individual food item with nutrition data."""
     id: int
@@ -28,7 +34,7 @@ class FoodItem(BaseModel):
 class AnalyzeResponse(BaseModel):
     """Response from /analyze endpoint."""
     success: bool
-    detected_foods: List[str] = Field(default_factory=list, description="Foods detected by Vision API")
+    detected_foods: List[DetectedFood] = Field(default_factory=list, description="Foods detected by Vision API")
     nutrition_data: List[FoodItem] = Field(default_factory=list, description="Nutrition data for detected foods")
     cache_hits: int = Field(0, description="Number of foods found in cache")
     cache_misses: int = Field(0, description="Number of foods fetched from API")
